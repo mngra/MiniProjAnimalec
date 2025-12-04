@@ -183,11 +183,14 @@ export default {
         ? `${sponsor.contactList.map(contact => `${contact}; `).join("")}`
         : "<p>Nenhum contacto disponível.</p>";
       const logo = require("@/assets/avatars/sponsors/no-image.jpg");
+      if (sponsor.logoPath == undefined || sponsor.logoPath == ''){
+        sponsor.logoPath = logo
+      }
       let response = `
         <div class="sponsor-details-content">
             
             <div class="logo-container text-center mb-3">
-                <img src="${logo}" 
+                <img src="${sponsor.logoPath}" 
                      alt="Logo do Patrocinador" 
                      class="current-avatar-img img-fluid rounded">
             </div>

@@ -105,11 +105,11 @@
                 class="order-1 order-lg-2 d-flex flex-column align-items-center justify-content-start"
               >
                 <div class="form-group mt-4 text-center">
-                  <label for="fileAvatar">Logotipo do Patrocinador</label>
+                  <label for="fileAvatar">Logotipo do Patrocinador </label>
                   <div class="logo-preview-box">
                     <img
-                      v-if="sponsor.logo || file"
-                      :src="logoPreviewUrl"
+                      v-if="logoPreviewUrl || sponsor.logoPath"
+                      :src="logoPreviewUrl || sponsor.logoPath"
                       alt="Logotipo Atual"
                       class="logo-img-preview"
                     />
@@ -123,12 +123,6 @@
                     id="fileAvatar"
                     accept="image/*"
                   />
-                  <p v-if="file" class="small text-muted mt-1">
-                    Ficheiro selecionado: {{ file.name }}
-                  </p>
-                  <p v-else-if="sponsor.logo" class="small text-muted mt-1">
-                    Logo atual
-                  </p>
                 </div>
               </b-col>
             </b-row>
@@ -291,8 +285,8 @@ export default {
   data: () => {
     return {
       sponsor: {},
-      file: null, // Ficheiro de upload
-      logoPreviewUrl: null // URL para pré-visualização local
+      file: null, 
+      logoPreviewUrl: null
     };
   },
   computed: {
@@ -301,34 +295,36 @@ export default {
       animals: state => state.animals
     })
   },
-  methods: {
-    // Gestão do Upload do Logotipo
+  methods: {    
     handleFileUpload(event) {
-      this.file = event.target.files[0];
-      if (this.file) {
-        // Cria um URL para pré-visualização local (apenas no browser)
-        this.logoPreviewUrl = URL.createObjectURL(this.file);
-        // NOTA: O upload real do ficheiro para a API deve ser tratado no método `update()`
-        // e o campo `sponsor.logo` deve ser ajustado para guardar o caminho/nome do ficheiro
-        // após o upload bem-sucedido na API.
+      const selectedFile = event.target.files[0];
+
+      if (this.logoPreviewUrl) {
+        URL.revokeObjectURL(this.logoPreviewUrl);
+      }
+
+      if (selectedFile) {
+        this.file = selectedFile;
+        this.sponsor.logoPath = null;
+
+        this.logoPreviewUrl = URL.createObjectURL(selectedFile);
+      } else {
+        this.file = null;
+        this.logoPreviewUrl = null;
       }
     },
-    // Adição e Remoção de Animais
     addAnimal() {
-      // Garante que o animalList é um array de strings (assumindo o v-model)
       this.sponsor.animalList.push("");
     },
     removeAnimal(index) {
       this.sponsor.animalList.splice(index, 1);
     },
-    // Adição e Remoção de Links
     addLink() {
       this.sponsor.linkList.push("");
     },
     removeLink(index) {
       this.sponsor.linkList.splice(index, 1);
     },
-    // Adição e Remoção de Contactos
     addContact() {
       this.sponsor.contactList.push("");
     },
@@ -336,15 +332,11 @@ export default {
       this.sponsor.contactList.splice(index, 1);
     },
     update() {
-      const sponsorDataToSend = { ...this.sponsor };
-
-      // Se um novo ficheiro foi selecionado, ele deve ser incluído no payload de alguma forma.
-      // Dependendo da sua API, pode ser um FormData ou um campo base64, ou simplesmente
-      // o processo de upload é separado. Para este exemplo, apenas enviamos os dados
-      // do formulário, assumindo que o upload do ficheiro é feito à parte ou que o
-      // back-end pode lidar com um campo 'file'.
-
-      this.$store.dispatch(`sponsor/${EDIT_SPONSOR}`, sponsorDataToSend).then(
+      const finalPayload = {
+        ...this.sponsor,
+        logo: this.file
+      };
+      this.$store.dispatch(`sponsor/${EDIT_SPONSOR}`, finalPayload).then(
         successMessage => {
           this.$alert(successMessage, "Patrocinador atualizado!", "success");
           router.push({ name: "listSponsors" });
@@ -359,16 +351,12 @@ export default {
     const initialData = this.getSponsorsById(this.$route.params.sponsorId);
 
     if (initialData) {
-      // Criar uma cópia profunda para edição reativa
       this.sponsor = JSON.parse(JSON.stringify(initialData));
 
-      // Configura a pré-visualização do logo existente
       if (this.sponsor.logo) {
-        // Assumindo que sponsor.logo contém o URL da imagem atual
         this.logoPreviewUrl = this.sponsor.logo;
       }
     } else {
-      // Caso não encontre, inicializa as listas vazias como arrays de strings vazias
       this.sponsor = {
         name: "",
         startDate: "",
@@ -378,7 +366,7 @@ export default {
         state: "ativo",
         description: "",
         logo: null,
-        animalList: [""], // Inicializa com um campo vazio
+        animalList: [""], 
         linkList: [""],
         contactList: [""]
       };
@@ -386,7 +374,6 @@ export default {
     this.$store.dispatch(`animal/${FETCH_ANIMALS}`);
   },
   beforeDestroy() {
-    // Limpa o URL de pré-visualização do objeto blob para evitar vazamentos de memória
     if (this.logoPreviewUrl && this.file) {
       URL.revokeObjectURL(this.logoPreviewUrl);
     }
@@ -395,7 +382,6 @@ export default {
 </script>
 
 <style scoped>
-/* Adicionado estilo para a caixa de visualização do logotipo */
 .logo-preview-box {
   width: 150px;
   height: 150px;

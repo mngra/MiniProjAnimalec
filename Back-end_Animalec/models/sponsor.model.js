@@ -16,6 +16,10 @@ const sponsorSchema = new Schema({
     sponsorshipValue: String,
     state: String,
     email: String,
+    logoPath: { 
+        type: String,
+        required: true
+    },
     animalList: [{
         type: String,
         ref: CONFIG.mongodb.collections.animal
@@ -31,10 +35,10 @@ const sponsorSchema = new Schema({
         type: Date,
         default: Date.now
     },
-    updatedAt: [{
+    updatedAt: { 
         type: Date,
         default: Date.now
-    }]
+    }
 });
 
 module.exports = global.mongoConnection.model(CONFIG.mongodb.collections.sponsor, sponsorSchema);

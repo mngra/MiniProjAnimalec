@@ -106,28 +106,22 @@
                 <div class="form-group mt-4 text-center">
                   <label for="fileAvatar">Logotipo do Patrocinador</label>
                   <div class="logo-preview-box">
-                    <!--<img
-                      v-if="logo || file"
+                    <img
+                      v-if="logoPreviewUrl"
                       :src="logoPreviewUrl"
                       alt="Logotipo Atual"
                       class="logo-img-preview"
                     />
-                    <i v-else class="fas fa-image fa-5x text-muted mt-3"></i>-->
+                    <i v-else class="fas fa-image fa-5x text-muted mt-3"></i>
                   </div>
 
-                  <!--<input
+                  <input
                     type="file"
                     @change="handleFileUpload"
                     class="form-control-file mt-2"
                     id="fileAvatar"
                     accept="image/*"
                   />
-                  <p v-if="sponsor.file" class="small text-muted mt-1">
-                    Ficheiro selecionado: 
-                  </p>
-                  <p v-else-if="logo" class="small text-muted mt-1">
-                    Logo atual
-                  </p>-->
                 </div>
               </b-col>
             </b-row>
@@ -208,41 +202,6 @@
                     + Adicionar Novo Link
                   </button>
                 </div>
-                <!--<div>
-                  <h6 class="mt-4">lista de contactos</h6>
-                  <div
-                    v-for="(contact, index) in sponsor.contactList"
-                    :key="'contact-' + index"
-                    class="form-row mb-3"
-                  >
-                    <div class="col-md-10">
-                      <input
-                        v-model="sponsor.contactList[index]"
-                        type="text"
-                        class="form-control"
-                        :placeholder="`Insere o contacto `"
-                        required
-                      />
-                    </div>
-
-                    <div class="col-md-2">
-                      <button
-                        @click.prevent="removeContact(index)"
-                        class="btn btn-danger"
-                      >
-                        Remover
-                      </button>
-                    </div>
-                  </div>
-
-                  <button
-                    @click.prevent="addContact"
-                    class="btn btn-outline-primary mt-2"
-                  >
-                    + Adicionar Novo Contacto
-                  </button>
-                </div> -->
-
                 <div class="form-group mt-4 ">
                   <textarea
                     id="txtDescription"
@@ -324,6 +283,8 @@ export default {
   },
   data: () => {
     return {
+      file: null,
+      logoPreviewUrl: null,
       sponsor: {
         name: "",
         type: "",
@@ -347,32 +308,36 @@ export default {
     })
   },
   methods: {
-    // Adição e Remoção de Animais
     addAnimal() {
-      // Garante que o animalList é um array de strings (assumindo o v-model)
       this.sponsor.animalList.push("");
     },
     removeAnimal(index) {
       this.sponsor.animalList.splice(index, 1);
     },
-    // Adição e Remoção de Links
     addLink() {
       this.sponsor.linkList.push("");
     },
     removeLink(index) {
       this.sponsor.linkList.splice(index, 1);
     },
-    // Adição e Remoção de Contactos
-    addContact() {
-      this.sponsor.contactList.push("");
-    },
-    removeContact(index) {
-      this.sponsor.contactList.splice(index, 1);
+
+    handleFileUpload(event) {
+      const selectedFile = event.target.files[0];
+      if (selectedFile) {
+        this.file = selectedFile;
+        this.logoPreviewUrl = URL.createObjectURL(selectedFile);
+      } else {
+        this.file = null;
+        this.logoPreviewUrl = null;
+      }
     },
     add() {
-      const sponsorDataToSend = { ...this.sponsor };
+      const finalPayload = {
+        ...this.sponsor,
+        logo: this.file 
+      };
 
-      this.$store.dispatch(`sponsor/${ADD_SPONSOR}`, sponsorDataToSend).then(
+      this.$store.dispatch(`sponsor/${ADD_SPONSOR}`, finalPayload).then(
         () => {
           this.$alert(this.getMessage, "Patrocinador adicionado!", "success");
           router.push({ name: "listSponsors" });
@@ -384,8 +349,6 @@ export default {
     }
   },
   created() {
-    // 1. Despachar a Ação para carregar os Animais.
-    // O resultado será acessado REATIVAMENTE via this.animals (mapState).
     this.$store.dispatch(`animal/${FETCH_ANIMALS}`);
   }
 };

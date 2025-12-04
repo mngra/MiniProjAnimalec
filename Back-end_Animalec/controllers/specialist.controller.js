@@ -6,7 +6,7 @@ const SpecialistMessages = require("../messages/specialist.messages");
 
 exports.get = (req, res) => {
 
-    Specialist.find(req.query).populate("questions").exec((error, quizzes) => {
+    Specialist.find(req.query).exec((error, quizzes) => {
         if (error) throw error;
         let message = SpecialistMessages.success.s2;
 

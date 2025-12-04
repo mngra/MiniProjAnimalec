@@ -44,7 +44,6 @@
             <p v-html="animalListHtml"></p>
 
             <p><strong>Links:</strong> {{ linkListHtml }}</p>
-            <!--<p><strong>Contactos:</strong> {{ contactListHtml }}</p>-->
             <hr />
             <p>
               <strong>Descrição:</strong
@@ -121,8 +120,8 @@ export default {
   data: () => {
     return {
       sponsor: {},
-      file: null, // Ficheiro de upload
-      logoPreviewUrl: null // URL para pré-visualização local
+      file: null, 
+      logoPreviewUrl: null
     };
   },
   computed: {
@@ -131,7 +130,6 @@ export default {
       animals: state => state.animals
     }),
     animalListHtml() {
-      // Usa this.sponsor.animalList, que é reativo
       const list = this.sponsor.animalList;
       if (Array.isArray(list) && list.length) {
         return `${list.map(animal => `${animal}; `).join("")}`;
@@ -139,7 +137,6 @@ export default {
       return "Nenhum animal listado.";
     },
 
-    // Calcula a lista de links formatada como HTML
     linkListHtml() {
       const list = this.sponsor.linkList;
       if (Array.isArray(list) && list.length) {
@@ -148,7 +145,6 @@ export default {
       return "Nenhum link disponível.";
     },
 
-    // Calcula a lista de contactos formatada como HTML
     contactListHtml() {
       const list = this.sponsor.contactList;
       if (Array.isArray(list) && list.length) {
@@ -158,33 +154,24 @@ export default {
     }
   },
   methods: {
-    // Gestão do Upload do Logotipo
     handleFileUpload(event) {
       this.file = event.target.files[0];
       if (this.file) {
-        // Cria um URL para pré-visualização local (apenas no browser)
         this.logoPreviewUrl = URL.createObjectURL(this.file);
-        // NOTA: O upload real do ficheiro para a API deve ser tratado no método `update()`
-        // e o campo `sponsor.logo` deve ser ajustado para guardar o caminho/nome do ficheiro
-        // após o upload bem-sucedido na API.
       }
     },
-    // Adição e Remoção de Animais
     addAnimal() {
-      // Garante que o animalList é um array de strings (assumindo o v-model)
       this.sponsor.animalList.push("");
     },
     removeAnimal(index) {
       this.sponsor.animalList.splice(index, 1);
     },
-    // Adição e Remoção de Links
     addLink() {
       this.sponsor.linkList.push("");
     },
     removeLink(index) {
       this.sponsor.linkList.splice(index, 1);
     },
-    // Adição e Remoção de Contactos
     addContact() {
       this.sponsor.contactList.push("");
     },
@@ -211,13 +198,6 @@ export default {
     },
     update() {
       const sponsorDataToSend = { ...this.sponsor };
-
-      // Se um novo ficheiro foi selecionado, ele deve ser incluído no payload de alguma forma.
-      // Dependendo da sua API, pode ser um FormData ou um campo base64, ou simplesmente
-      // o processo de upload é separado. Para este exemplo, apenas enviamos os dados
-      // do formulário, assumindo que o upload do ficheiro é feito à parte ou que o
-      // back-end pode lidar com um campo 'file'.
-
       this.$store.dispatch(`sponsor/${EDIT_SPONSOR}`, sponsorDataToSend).then(
         successMessage => {
           this.$alert(successMessage, "Patrocinador atualizado!", "success");
@@ -233,16 +213,12 @@ export default {
     const initialData = this.getSponsorsById(this.$route.params.sponsorId);
 
     if (initialData) {
-      // Criar uma cópia profunda para edição reativa
       this.sponsor = JSON.parse(JSON.stringify(initialData));
 
-      // Configura a pré-visualização do logo existente
       if (this.sponsor.logo) {
-        // Assumindo que sponsor.logo contém o URL da imagem atual
         this.logoPreviewUrl = this.sponsor.logo;
       }
     } else {
-      // Caso não encontre, inicializa as listas vazias como arrays de strings vazias
       this.sponsor = {
         name: "",
         startDate: "",
@@ -252,7 +228,7 @@ export default {
         state: "ativo",
         description: "",
         logo: null,
-        animalList: [""], // Inicializa com um campo vazio
+        animalList: [""],
         linkList: [""],
         contactList: [""]
       };
@@ -260,7 +236,6 @@ export default {
     this.$store.dispatch(`animal/${FETCH_ANIMALS}`);
   },
   beforeDestroy() {
-    // Limpa o URL de pré-visualização do objeto blob para evitar vazamentos de memória
     if (this.logoPreviewUrl && this.file) {
       URL.revokeObjectURL(this.logoPreviewUrl);
     }
@@ -269,7 +244,6 @@ export default {
 </script>
 
 <style scoped>
-/* Adicionado estilo para a caixa de visualização do logotipo */
 .logo-preview-box {
   width: 150px;
   height: 150px;

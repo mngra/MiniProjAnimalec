@@ -1,5 +1,26 @@
 import API_URL from "./config.js";
 
+const createFormData = payload => {
+  const formData = new FormData();
+  if (payload.logo) {
+    formData.append("logo", payload.logo, payload.logo.name);
+  }
+
+  for (const key in payload) {
+    if (payload.hasOwnProperty(key) && key !== "logo") {
+      const value = payload[key];
+
+      if (Array.isArray(value) || typeof value === "object") {
+        formData.append(key, JSON.stringify(value));
+      }
+      else if (key !== "_id" && key !== "__v") {
+        formData.append(key, value);
+      }
+    }
+  }
+  return formData;
+};
+
 export const sponsorService = {
   async getSponsors(token) {
     let response = await fetch(`${API_URL}/sponsors`, {
@@ -16,37 +37,39 @@ export const sponsorService = {
     }
   },
   async addSponsor(token, payload) {
+    const formData = createFormData(payload);
+
     const response = await fetch(`${API_URL}/sponsors`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
         Authorization: token
       },
-      body: JSON.stringify(payload)
+      body: formData 
     });
+
     if (response.ok) {
       return await response.json();
     } else {
       throw Error(handleResponses(response.status));
     }
   },
-
   async editSponsor(token, payload) {
-    const response = await fetch(`${API_URL}/sponsors/${payload._id}`, {
+    const formData = createFormData(payload);
+    const id = payload._id;
+    const response = await fetch(`${API_URL}/sponsors/${id}`, {
       method: "PUT",
       headers: {
-        "Content-Type": "application/json",
         Authorization: token
       },
-      body: JSON.stringify(payload)
+      body: formData
     });
+
     if (response.ok) {
       return await response.json();
     } else {
       throw Error(handleResponses(response.status));
     }
   },
-
   async removeSponsor(token, id) {
     const response = await fetch(`${API_URL}/sponsors/${id}`, {
       method: "DELETE",
@@ -62,7 +85,6 @@ export const sponsorService = {
     }
   }
 };
-
 function handleResponses(code) {
   let message = "";
   switch (code) {
@@ -75,5 +97,4 @@ function handleResponses(code) {
   }
   return message;
 }
-
 export default sponsorService;

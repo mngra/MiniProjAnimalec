@@ -18,7 +18,7 @@ const sponsorSchema = new Schema({
     email: String,
     logoPath: { 
         type: String,
-        required: true
+        required: false
     },
     animalList: [{
         type: String,

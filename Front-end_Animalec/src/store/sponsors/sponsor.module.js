@@ -68,16 +68,10 @@ const actions = {
   [EDIT_SPONSOR]: ({ commit, rootState }, payload) => {
     // O payload é o objeto patrocinador com o nome correto (ex: payload.name)
     const sponsorName = payload.name;
-
     return new Promise((resolve, reject) => {
       sponsorService.editSponsor(rootState.auth.token, payload).then(
         () => {
-          // CORRIGIDO: Usar o nome do objeto que enviamos (payload)
           const successMessage = `O patrocinador ${sponsorName} foi atualizado com sucesso!`;
-
-          // Opcional: Se quiser atualizar o Store com a nova lista/objeto editado
-          // commit('UPDATE_SPECIALIST', res.body);
-
           commit(SET_MESSAGE, successMessage);
           resolve(successMessage);
         },

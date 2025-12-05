@@ -183,8 +183,8 @@ export default {
         ? `${sponsor.contactList.map(contact => `${contact}; `).join("")}`
         : "<p>Nenhum contacto disponível.</p>";
       const logo = require("@/assets/avatars/sponsors/no-image.jpg");
-      if (sponsor.logoPath == undefined || sponsor.logoPath == ''){
-        sponsor.logoPath = logo
+      if (sponsor.logoPath == undefined || sponsor.logoPath == "") {
+        sponsor.logoPath = logo;
       }
       let response = `
         <div class="sponsor-details-content">
@@ -209,7 +209,8 @@ export default {
             <p><strong>Links:</strong> ${linkListHtml} </p>
             <p><strong>Contactos:</strong> ${contactListHtml} </p>
             <hr>
-            <p><strong>Descrição:</strong>${sponsor.description || "Sem descrição."}</p>
+            <p><strong>Descrição:</strong>${sponsor.description ||
+              "Sem descrição."}</p>
             <hr>
         </div>
       `;

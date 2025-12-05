@@ -285,7 +285,7 @@ export default {
   data: () => {
     return {
       sponsor: {},
-      file: null, 
+      file: null,
       logoPreviewUrl: null
     };
   },
@@ -295,7 +295,7 @@ export default {
       animals: state => state.animals
     })
   },
-  methods: {    
+  methods: {
     handleFileUpload(event) {
       const selectedFile = event.target.files[0];
 
@@ -366,7 +366,7 @@ export default {
         state: "ativo",
         description: "",
         logo: null,
-        animalList: [""], 
+        animalList: [""],
         linkList: [""],
         contactList: [""]
       };
